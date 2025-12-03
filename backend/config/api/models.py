@@ -36,10 +36,11 @@ class SensorReading(models.Model):
     """Modelo para lecturas del sensor YF-S201"""
     device = models.ForeignKey(Device, on_delete=models.CASCADE)
     flow_rate = models.FloatField(help_text="Caudal en L/min")
+    total_volume = models.FloatField(default=0.0, help_text="Volumen total acumulado en litros")
     timestamp = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ['-timestamp']
 
     def __str__(self):
-        return f"{self.device.name} - {self.flow_rate} L/min"
+        return f"{self.device.name} - {self.flow_rate} L/min - Total: {self.total_volume} L"

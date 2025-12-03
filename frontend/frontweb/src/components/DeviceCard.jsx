@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import ValveControl from './ValveControl';
+import WaterSensorDisplay from './WaterSensorDisplay';
 import './DeviceCard.css';
 
 function DeviceCard({ device }) {
@@ -36,6 +37,8 @@ function DeviceCard({ device }) {
       <div className="card-controls">
         <ValveControl device={device} onStatusChange={handleStatusChange} />
       </div>
+
+      <WaterSensorDisplay device={device} />
 
       {lastControl && (
         <div className="last-control-info">

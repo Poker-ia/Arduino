@@ -20,4 +20,4 @@ class SensorReadingSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SensorReading
-        fields = ['id', 'device', 'device_name', 'flow_rate', 'timestamp']
+        fields = ['id', 'device', 'device_name', 'flow_rate', 'total_volume', 'timestamp']

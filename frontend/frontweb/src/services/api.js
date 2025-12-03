@@ -38,6 +38,11 @@ export const sensorAPI = {
   // Obtener última lectura del sensor
   getLatest: (deviceId) => api.get(`/sensor-readings/latest/?device_id=${deviceId}`),
 
+  // Obtener estadísticas de consumo
+  getStats: (deviceId, startDate, endDate) => api.get('/sensor-readings/stats/', {
+    params: { device_id: deviceId, start_date: startDate, end_date: endDate }
+  }),
+
   // Obtener todos los registros
   getAll: () => api.get('/sensor-readings/'),
 };
