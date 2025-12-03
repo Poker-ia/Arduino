@@ -1,24 +1,30 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 :root {
-  /* Colors - Minimalist Palette */
-  --bg-primary: #0F172A;
-  --bg-secondary: #1E293B;
-  --bg-tertiary: #334155;
+  /* Colors - Water-Themed Neumorphic Palette */
+  --bg-primary: #E0F2F7;
+  --bg-secondary: #D1EBF0;
+  --bg-tertiary: #B8DDE3;
 
-  --accent-primary: #3B82F6;
-  --accent-success: #10B981;
-  --accent-warning: #F59E0B;
-  --accent-danger: #EF4444;
+  --accent-primary: #00ACC1;
+  --accent-secondary: #0097A7;
+  --accent-success: #26C6DA;
+  --accent-warning: #FFA726;
+  --accent-danger: #EF5350;
 
-  --text-primary: #F8FAFC;
-  --text-secondary: #94A3B8;
-  --text-tertiary: #64748B;
+  --text-primary: #004D5C;
+  --text-secondary: #00838F;
+  --text-tertiary: #00ACC1;
 
-  --border-color: #334155;
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+  --border-color: #B8DDE3;
+
+  /* Neumorphic Shadows */
+  --shadow-light: #FFFFFF;
+  --shadow-dark: #A8CFD6;
+  --neu-shadow-sm: 3px 3px 6px var(--shadow-dark), -3px -3px 6px var(--shadow-light);
+  --neu-shadow-md: 6px 6px 12px var(--shadow-dark), -6px -6px 12px var(--shadow-light);
+  --neu-shadow-inset: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
+  --neu-shadow-inset-deep: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
 
   /* Spacing */
   --spacing-xs: 0.25rem;

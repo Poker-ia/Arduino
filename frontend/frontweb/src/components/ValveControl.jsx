@@ -7,29 +7,24 @@ function ValveControl({ device, onStatusChange }) {
   const [error, setError] = useState(null);
   const [valveStatus, setValveStatus] = useState('closed');
 
-  const handleOpenValve = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      await deviceAPI.openValve(device.id);
-      setValveStatus('open');
-      onStatusChange('open');
-    } catch (err) {
-      setError(err.response?.data?.error || 'Error al abrir válvula');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const handleToggle = async () => {
+    if (loading || !device.is_online) return;
 
-  const handleCloseValve = async () => {
     setLoading(true);
     setError(null);
+
+    const newStatus = valveStatus === 'closed' ? 'open' : 'closed';
+
     try {
-      await deviceAPI.closeValve(device.id);
-      setValveStatus('closed');
-      onStatusChange('closed');
+      if (newStatus === 'open') {
+        await deviceAPI.openValve(device.id);
+      } else {
+        await deviceAPI.closeValve(device.id);
+      }
+      setValveStatus(newStatus);
+      onStatusChange(newStatus);
     } catch (err) {
-      setError(err.response?.data?.error || 'Error al cerrar válvula');
+      setError(err.response?.data?.error || 'Error al cambiar estado de válvula');
     } finally {
       setLoading(false);
     }
@@ -46,21 +41,22 @@ function ValveControl({ device, onStatusChange }) {
 
       {error && <div className="error-message">{error}</div>}
 
-      <div className="button-group">
+      <div className="toggle-container">
         <button
-          className="btn btn-open"
-          onClick={handleOpenValve}
+          className={`toggle-switch ${valveStatus === 'open' ? 'active' : ''} ${loading ? 'loading' : ''}`}
+          onClick={handleToggle}
           disabled={loading || !device.is_online}
+          aria-label={valveStatus === 'open' ? 'Cerrar válvula' : 'Abrir válvula'}
         >
-          {loading ? 'Procesando...' : 'ABRIR'}
+          <div className="toggle-knob">
+            <span className="toggle-icon">
+              {valveStatus === 'open' ? '💧' : '🔒'}
+            </span>
+          </div>
         </button>
-        <button
-          className="btn btn-close"
-          onClick={handleCloseValve}
-          disabled={loading || !device.is_online}
-        >
-          {loading ? 'Procesando...' : 'CERRAR'}
-        </button>
+        <span className="toggle-label">
+          {loading ? 'Procesando...' : 'Toca para cambiar'}
+        </span>
       </div>
 
       {!device.is_online && (
