@@ -62,10 +62,10 @@ function WaterSensorDisplay({ device }) {
     return (
       <div className="water-sensor-display waiting">
         <div className="sensor-header">
-          <h3>💧 Sensor de Agua</h3>
+          <h3>Sensor de Agua</h3>
         </div>
         <div className="waiting-message">
-          <p>⏳ Esperando datos del sensor...</p>
+          <p>Esperando datos del sensor...</p>
           <small>Asegúrate de que el ESP32 esté conectado y enviando datos</small>
         </div>
       </div>
@@ -75,7 +75,7 @@ function WaterSensorDisplay({ device }) {
   return (
     <div className="water-sensor-display">
       <div className="sensor-header">
-        <h3>💧 Sensor de Agua</h3>
+        <h3>Sensor de Agua</h3>
         {lastUpdate && (
           <span className="last-update">{getTimeSinceUpdate()}</span>
         )}

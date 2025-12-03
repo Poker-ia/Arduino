@@ -40,7 +40,7 @@ function ValveControl({ device, onStatusChange }) {
       <div className="valve-status">
         <h3>Estado de Válvula</h3>
         <p className={`status ${valveStatus}`}>
-          {valveStatus === 'open' ? '✓ ABIERTA' : '✗ CERRADA'}
+          {valveStatus === 'open' ? 'ABIERTA' : 'CERRADA'}
         </p>
       </div>
 
@@ -64,7 +64,7 @@ function ValveControl({ device, onStatusChange }) {
       </div>
 
       {!device.is_online && (
-        <p className="offline-warning">⚠️ Dispositivo desconectado</p>
+        <p className="offline-warning">Dispositivo desconectado</p>
       )}
     </div>
   );

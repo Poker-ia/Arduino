@@ -15,7 +15,7 @@ function DeviceCard({ device }) {
       <div className="card-header">
         <h2>{device.name}</h2>
         <span className={`status-badge ${device.is_online ? 'online' : 'offline'}`}>
-          {device.is_online ? '🟢 En línea' : '🔴 Sin conexión'}
+          {device.is_online ? 'En línea' : 'Desconectado'}
         </span>
       </div>
 

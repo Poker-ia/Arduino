@@ -18,13 +18,13 @@ function Dashboard() {
   const fetchDevices = async () => {
     try {
       const response = await deviceAPI.getAll();
-      
+
       console.log('Respuesta completa:', response);
       console.log('Datos recibidos:', response.data);
-      
+
       // ✅ ARREGLO: Maneja tanto arrays como objetos con propiedad 'results'
       let devicesData = [];
-      
+
       if (Array.isArray(response.data)) {
         // Si es un array directo
         devicesData = response.data;
@@ -35,13 +35,13 @@ function Dashboard() {
         // Si es un objeto, intenta obtener los valores
         devicesData = Object.values(response.data);
       }
-      
+
       // Verifica que sea un array antes de usarlo
       if (!Array.isArray(devicesData)) {
         console.warn('Los datos no son un array:', devicesData);
         devicesData = [];
       }
-      
+
       setDevices(devicesData);
       setError(null);
     } catch (err) {
@@ -65,7 +65,7 @@ function Dashboard() {
   if (error) {
     return (
       <div className="dashboard error">
-        <h2>⚠️ Error</h2>
+        <h2>Error</h2>
         <p>{error}</p>
         <button onClick={fetchDevices} className="retry-btn">
           Reintentar
@@ -77,8 +77,8 @@ function Dashboard() {
   if (!devices || devices.length === 0) {
     return (
       <div className="dashboard empty">
-        <h2>📭 No hay dispositivos registrados</h2>
-        <p>Registra un ESP32 en la panel de administración de Django para comenzar</p>
+        <h2>Sin dispositivos</h2>
+        <p>Registra un ESP32 en el panel de administración</p>
         <a href="http://localhost:8000/admin" target="_blank" rel="noopener noreferrer" className="admin-link">
           Ir a Admin Django
         </a>
@@ -89,9 +89,9 @@ function Dashboard() {
   return (
     <div className="dashboard">
       <div className="dashboard-header">
-        <h1>🚰 Sistema de Control de Válvula</h1>
-        <p>Controla tus dispositivos ESP32 de forma remota</p>
-        <p className="device-count">Dispositivos conectados: {devices.length}</p>
+        <h1>Control de Válvula</h1>
+        <p>Monitoreo y control remoto</p>
+        <p className="device-count">{devices.length} {devices.length === 1 ? 'dispositivo' : 'dispositivos'}</p>
       </div>
 
       <div className="devices-grid">

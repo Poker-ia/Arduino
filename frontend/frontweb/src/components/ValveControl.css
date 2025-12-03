@@ -1,56 +1,61 @@
 .valve-control {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: var(--spacing-md);
 }
 
 .valve-status {
   text-align: center;
-  padding: 15px;
-  background: #f9f9f9;
-  border-radius: 8px;
-  border-left: 4px solid #667eea;
+  padding: var(--spacing-lg);
+  background-color: var(--bg-tertiary);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
 }
 
 .valve-status h3 {
-  color: #667eea;
-  margin-bottom: 8px;
-  font-size: 0.95em;
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-sm);
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .status {
-  font-size: 1.3em;
-  font-weight: bold;
-  letter-spacing: 1px;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 .status.open {
-  color: #4caf50;
+  color: var(--accent-success);
 }
 
 .status.closed {
-  color: #f44336;
+  color: var(--text-secondary);
 }
 
 .button-group {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: var(--spacing-sm);
 }
 
 .btn {
-  padding: 12px 20px;
+  padding: var(--spacing-md);
   border: none;
-  border-radius: 8px;
-  font-size: 1em;
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
 }
 
 .btn:active:not(:disabled) {
@@ -58,52 +63,65 @@
 }
 
 .btn:disabled {
-  opacity: 0.5;
+  opacity: 0.4;
   cursor: not-allowed;
 }
 
 .btn-open {
-  background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+  background-color: var(--accent-success);
   color: white;
 }
 
 .btn-open:hover:not(:disabled) {
-  background: linear-gradient(135deg, #45a049 0%, #3d8b40 100%);
+  background-color: #059669;
 }
 
 .btn-close {
-  background: linear-gradient(135deg, #f44336 0%, #da190b 100%);
-  color: white;
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
 }
 
 .btn-close:hover:not(:disabled) {
-  background: linear-gradient(135deg, #da190b 0%, #ba0000 100%);
+  background-color: var(--accent-danger);
+  border-color: var(--accent-danger);
 }
 
 .error-message {
-  background: #ffcdd2;
-  color: #c62828;
-  padding: 12px 15px;
-  border-radius: 8px;
-  border-left: 4px solid #c62828;
-  font-size: 0.95em;
-  animation: shake 0.5s;
+  background-color: rgba(239, 68, 68, 0.15);
+  color: var(--accent-danger);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  font-size: 0.875rem;
+  animation: shake 0.3s;
 }
 
 .offline-warning {
-  background: #fff3e0;
-  color: #e65100;
-  padding: 12px 15px;
-  border-radius: 8px;
-  border-left: 4px solid #e65100;
-  font-size: 0.95em;
+  background-color: rgba(245, 158, 11, 0.15);
+  color: var(--accent-warning);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  font-size: 0.875rem;
   margin: 0;
+  text-align: center;
 }
 
 @keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-5px); }
-  75% { transform: translateX(5px); }
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  25% {
+    transform: translateX(-4px);
+  }
+
+  75% {
+    transform: translateX(4px);
+  }
 }
 
 @media (max-width: 600px) {
@@ -112,7 +130,7 @@
   }
 
   .btn {
-    padding: 15px;
-    font-size: 1.05em;
+    padding: var(--spacing-md);
+    font-size: 0.95rem;
   }
 }
