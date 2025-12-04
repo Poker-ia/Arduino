@@ -79,7 +79,7 @@ function Dashboard() {
       <div className="dashboard empty">
         <h2>Sin dispositivos</h2>
         <p>Registra un ESP32 en el panel de administración</p>
-        <a href="http://localhost:8000/admin" target="_blank" rel="noopener noreferrer" className="admin-link">
+        <a href="https://arduino-2a9u.onrender.com/admin" target="_blank" rel="noopener noreferrer" className="admin-link">
           Ir a Admin Django
         </a>
       </div>

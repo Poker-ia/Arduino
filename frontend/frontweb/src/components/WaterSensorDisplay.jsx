@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './WaterSensorDisplay.css';
+import { sensorAPI } from '../services/api';
 
 function WaterSensorDisplay({ device }) {
   const [sensorData, setSensorData] = useState(null);
@@ -14,27 +15,28 @@ function WaterSensorDisplay({ device }) {
     return () => clearInterval(interval);
   }, [device.id]);
 
+
+
   const fetchSensorData = async () => {
     try {
-      const response = await fetch(
-        `http://localhost:8000/api/sensor-readings/latest/?device_id=${device.id}`
-      );
+      const response = await sensorAPI.getLatest(device.id);
 
-      if (response.ok) {
-        const data = await response.json();
-        setSensorData(data);
+      if (response.data) {
+        setSensorData(response.data);
         setLastUpdate(new Date());
         setError(null);
-      } else if (response.status === 404) {
-        // No hay lecturas todavía - esto es normal al inicio
-        setError(null);
-        setSensorData(null);
       } else {
         setError('Error al obtener datos del sensor');
       }
     } catch (err) {
       console.error('Error fetching sensor data:', err);
-      setError(null); // No mostrar error si el backend no responde
+      if (err.response && err.response.status === 404) {
+        // No hay lecturas todavía - esto es normal al inicio
+        setError(null);
+        setSensorData(null);
+      } else {
+        setError(null); // No mostrar error si el backend no responde
+      }
     } finally {
       setLoading(false);
     }
