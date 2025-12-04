@@ -10,7 +10,7 @@ const char* device_id = "ESP32_VALVE_001";
 const char* device_name = "Válvula Principal";
 
 // ===== CONFIGURACIÓN Backend =====
-const char* backendURL = "http://10.60.136.30:8000/api/sensor-readings/";  // ✅ IP de tu PC
+const char* backendURL = "http://10.60.136.11:8000/api/sensor-readings/";  // ✅ IP CORRECTA de tu PC
 
 // ===== PINES =====
 const int VALVE_PIN = 17;      // GPIO17 para controlar válvula
@@ -331,12 +331,19 @@ void loop() {
     // Deshabilitar interrupciones temporalmente
     detachInterrupt(digitalPinToInterrupt(SENSOR_PIN));
     
-    // Calcular caudal (L/min)
-    flowRate = ((1000.0 / (millis() - oldTime)) * pulseCount) / calibrationFactor;
-    
-    // Calcular volumen acumulado
-    float timeElapsed = (millis() - oldTime) / 60000.0;
-    totalVolume += flowRate * timeElapsed;
+    // ✅ FILTRO DE RUIDO: Ignorar pulsos si son muy pocos (ruido eléctrico)
+    // Si hay menos de 10 pulsos por segundo, probablemente es ruido
+    if (pulseCount < 10) {
+      pulseCount = 0;
+      flowRate = 0.0;
+    } else {
+      // Calcular caudal (L/min) solo si hay suficientes pulsos
+      flowRate = ((1000.0 / (millis() - oldTime)) * pulseCount) / calibrationFactor;
+      
+      // Calcular volumen acumulado solo si hay flujo real
+      float timeElapsed = (millis() - oldTime) / 60000.0;
+      totalVolume += flowRate * timeElapsed;
+    }
     
     oldTime = millis();
     
@@ -348,6 +355,11 @@ void loop() {
       Serial.println(" s");
       Serial.print("📈 Pulsos detectados: ");
       Serial.println(pulseCount);
+      
+      if (pulseCount < 10 && pulseCount > 0) {
+        Serial.println("⚠️  RUIDO FILTRADO (< 10 pulsos)");
+      }
+      
       Serial.print("💧 Caudal: ");
       Serial.print(flowRate, 2);
       Serial.println(" L/min");
@@ -356,9 +368,7 @@ void loop() {
       Serial.println(" L");
       
       if (pulseCount == 0) {
-        Serial.println("⚠️  Sin flujo detectado");
-        Serial.println("   ¿Sensor conectado correctamente?");
-        Serial.println("   Cable amarillo → GPIO35");
+        Serial.println("✅ Sin flujo (correcto si no hay agua)");
       }
     }
     
@@ -368,10 +378,14 @@ void loop() {
     attachInterrupt(digitalPinToInterrupt(SENSOR_PIN), pulseCounter, FALLING);
     
     // ===== ENVIAR DATOS AL BACKEND CADA 5 SEGUNDOS =====
+    // Solo enviar si hay flujo real (flowRate > 0) o cada 30 segundos para mantener conexión
     static unsigned long lastSend = 0;
     if (millis() - lastSend > 5000) {
-      sendDataToBackend();
-      lastSend = millis();
+      // Enviar solo si hay flujo o han pasado 30 segundos
+      if (flowRate > 0 || (millis() - lastSend > 30000)) {
+        sendDataToBackend();
+        lastSend = millis();
+      }
     }
   }
   
