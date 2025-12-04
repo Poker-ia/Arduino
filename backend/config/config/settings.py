@@ -62,18 +62,8 @@ MIDDLEWARE = [
 
 ]
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://localhost:5173",      # ← Agregar Vite (puerto 5173)
-    "http://127.0.0.1:3000",
-    "http://127.0.0.1:5173",      # ← También localhost como IP
-    "http://localhost:8000",
-]
-
-# Agregar URL del frontend en producción si existe
-FRONTEND_URL = os.environ.get('FRONTEND_URL', '')
-if FRONTEND_URL:
-    CORS_ALLOWED_ORIGINS.append(FRONTEND_URL)
+# CORS Configuration
+CORS_ALLOW_ALL_ORIGINS = True  # ⚠️ Permite peticiones desde cualquier lugar (Vercel, Localhost, etc.)
 
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_METHODS = [
