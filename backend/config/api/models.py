@@ -6,6 +6,21 @@ class Device(models.Model):
     device_id = models.CharField(max_length=100, unique=True)
     ip_address = models.GenericIPAddressField()
     is_online = models.BooleanField(default=False)
+    
+    # Campos para control remoto de válvula (arquitectura inversa)
+    desired_valve_state = models.CharField(
+        max_length=10,
+        choices=[('open', 'Open'), ('closed', 'Closed'), ('none', 'None')],
+        default='none',
+        help_text='Estado deseado de la válvula (comando pendiente para ESP32)'
+    )
+    current_valve_state = models.CharField(
+        max_length=10,
+        choices=[('open', 'Open'), ('closed', 'Closed'), ('unknown', 'Unknown')],
+        default='unknown',
+        help_text='Estado actual de la válvula (reportado por ESP32)'
+    )
+    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

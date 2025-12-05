@@ -15,7 +15,7 @@ class DeviceViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['post'])
     def open_valve(self, request, pk=None):
-        """Abrir válvula del dispositivo"""
+        """Solicitar apertura de válvula (arquitectura inversa)"""
         device = self.get_object()
         
         if not device.is_online:
@@ -24,32 +24,19 @@ class DeviceViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_503_SERVICE_UNAVAILABLE
             )
 
-        try:
-            # Enviar comando al ESP32
-            url = f"http://{device.ip_address}/api/valve/open"
-            response = requests.post(url, timeout=5)
-            
-            if response.status_code == 200:
-                # Registrar en base de datos
-                ValveControl.objects.create(
-                    device=device,
-                    status='open'
-                )
-                return Response({'message': 'Válvula abierta'})
-            else:
-                return Response(
-                    {'error': 'Error en ESP32'},
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
-                )
-        except requests.exceptions.RequestException as e:
-            return Response(
-                {'error': f'No se pudo conectar: {str(e)}'},
-                status=status.HTTP_503_SERVICE_UNAVAILABLE
-            )
+        # Guardar comando pendiente en base de datos
+        device.desired_valve_state = 'open'
+        device.save()
+        
+        return Response({
+            'message': 'Comando de apertura registrado. El ESP32 lo ejecutará en breve.',
+            'device_id': device.device_id,
+            'desired_state': 'open'
+        })
 
     @action(detail=True, methods=['post'])
     def close_valve(self, request, pk=None):
-        """Cerrar válvula del dispositivo"""
+        """Solicitar cierre de válvula (arquitectura inversa)"""
         device = self.get_object()
         
         if not device.is_online:
@@ -58,27 +45,78 @@ class DeviceViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_503_SERVICE_UNAVAILABLE
             )
 
-        try:
-            # Enviar comando al ESP32
-            url = f"http://{device.ip_address}/api/valve/close"
-            response = requests.post(url, timeout=5)
-            
-            if response.status_code == 200:
-                # Registrar en base de datos
-                ValveControl.objects.create(
-                    device=device,
-                    status='closed'
-                )
-                return Response({'message': 'Válvula cerrada'})
-            else:
-                return Response(
-                    {'error': 'Error en ESP32'},
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
-                )
-        except requests.exceptions.RequestException as e:
+        # Guardar comando pendiente en base de datos
+        device.desired_valve_state = 'closed'
+        device.save()
+        
+        return Response({
+            'message': 'Comando de cierre registrado. El ESP32 lo ejecutará en breve.',
+            'device_id': device.device_id,
+            'desired_state': 'closed'
+        })
+    
+    @action(detail=False, methods=['get'])
+    def get_pending_command(self, request):
+        """ESP32 consulta comandos pendientes (polling)"""
+        device_id = request.query_params.get('device_id')
+        if not device_id:
             return Response(
-                {'error': f'No se pudo conectar: {str(e)}'},
-                status=status.HTTP_503_SERVICE_UNAVAILABLE
+                {'error': 'device_id es requerido'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        try:
+            device = Device.objects.get(device_id=device_id)
+            command = device.desired_valve_state
+            
+            # Si hay comando pendiente, limpiarlo después de enviarlo
+            if command != 'none':
+                device.desired_valve_state = 'none'
+                device.save()
+                
+            return Response({
+                'command': command,
+                'device_id': device_id,
+                'timestamp': device.updated_at
+            })
+        except Device.DoesNotExist:
+            return Response(
+                {'error': 'Dispositivo no encontrado'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+    
+    @action(detail=False, methods=['post'])
+    def report_valve_state(self, request):
+        """ESP32 reporta el estado actual de la válvula"""
+        device_id = request.data.get('device_id')
+        valve_state = request.data.get('valve_state')
+        
+        if not device_id or not valve_state:
+            return Response(
+                {'error': 'device_id y valve_state son requeridos'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        try:
+            device = Device.objects.get(device_id=device_id)
+            device.current_valve_state = valve_state
+            device.is_online = True  # Marcar como online al recibir reporte
+            device.save()
+            
+            # Registrar en historial
+            ValveControl.objects.create(
+                device=device,
+                status=valve_state
+            )
+            
+            return Response({
+                'message': 'Estado de válvula actualizado',
+                'current_state': valve_state
+            })
+        except Device.DoesNotExist:
+            return Response(
+                {'error': 'Dispositivo no encontrado'},
+                status=status.HTTP_404_NOT_FOUND
             )
 
     @action(detail=True, methods=['get'])
@@ -86,20 +124,18 @@ class DeviceViewSet(viewsets.ModelViewSet):
         """Obtener estado del dispositivo"""
         device = self.get_object()
         
-        try:
-            url = f"http://{device.ip_address}/api/status"
-            response = requests.get(url, timeout=5)
-            
-            if response.status_code == 200:
-                data = response.json()
-                return Response(data)
-        except:
-            pass
+        # Obtener última lectura del sensor
+        latest_reading = SensorReading.objects.filter(device=device).first()
         
         return Response({
             'id': device.id,
             'name': device.name,
-            'is_online': device.is_online
+            'device_id': device.device_id,
+            'is_online': device.is_online,
+            'current_valve_state': device.current_valve_state,
+            'desired_valve_state': device.desired_valve_state,
+            'flow_rate': latest_reading.flow_rate if latest_reading else 0,
+            'total_volume': latest_reading.total_volume if latest_reading else 0
         })
 
 
@@ -132,6 +168,10 @@ class SensorReadingViewSet(viewsets.ModelViewSet):
         if 'device_id' in request.data and 'device' not in request.data:
             try:
                 device = Device.objects.get(device_id=request.data['device_id'])
+                # Marcar dispositivo como online al recibir datos
+                device.is_online = True
+                device.save()
+                
                 # Crear copia mutable de request.data
                 data = request.data.copy()
                 data['device'] = device.id
